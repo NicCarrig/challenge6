@@ -1,0 +1,29 @@
+:root{
+    --main-blue: #1511e2e5;
+}
+
+*{
+    margin: 5px;
+}
+
+header{
+    margin: 0;
+    color: white;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    /* background-color: var(--main-blue); */
+    background: rgb(0,12,255);
+    background: radial-gradient(circle, rgba(0,12,255,1) 25%, rgba(78,173,251,1) 52%, rgba(0,11,255,1) 90%);
+}
+
+.btn{
+    margin-top: 5px;
+    border-radius: 5px;
+    color: white;
+    text-decoration: none;
+    background: rgb(13,164,224);
+    background: linear-gradient(90deg, rgba(13,164,224,1) 18%, rgba(24,64,212,1) 100%, rgba(0,212,255,1) 100%);
+}
+.btn:hover{
+    text-decoration: none;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
