@@ -31,8 +31,7 @@ function callCurrentAPI(currentSearchURL){
                 console.log(data);
                 var lat = data.coord.lat;
                 var lon = data.coord.lon;
-                var UVI = callUVIndexAPI(lat, lon);
-                displayCurrentWeather(data, UVI);
+                callUVIndexAPI(data, lat, lon);
             });
         }
         else{
@@ -43,16 +42,17 @@ function callCurrentAPI(currentSearchURL){
         console.log(error);
     });
 }
-function callUVIndexAPI(lat, lon){
+function callUVIndexAPI(mainData, lat, lon){
     //UV index can't be called with just city name, needs latitude and longitude
     var UVIndexURL = "https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+lon+"&appid=" + APIkey + "&units=imperial";
     fetch(UVIndexURL).then(function(response){
         if (response.ok){
             cityInputEl.value = "";
             response.json().then(function(data){
-                console.log("UV index");
-                console.log(data.daily[0].uvi);
-                return data.daily[0].uvi;
+                // console.log("UV index");
+                // console.log(data.daily[0].uvi);
+                var UVI = data.daily[0].uvi;
+                displayCurrentWeather(mainData, UVI);
             });
         }
         else{
@@ -107,6 +107,10 @@ function displayCurrentWeather(data, UVI){
     humidityEl.classList = "col-12"
     currentContainerEl.appendChild(humidityEl);
 
+    var UVIndexEl = document.createElement("span");
+    UVIndexEl.textContent = "UV Index: " + UVI ;
+    UVIndexEl.classList = "col-12"
+    currentContainerEl.appendChild(UVIndexEl);
     
 
     currentSearchEl.appendChild(currentContainerEl);
