@@ -1,5 +1,5 @@
 :root{
-    --main-blue: #1511e2e5;
+    --main-blue: rgb(17, 27, 170);
 }
 
 *{
@@ -9,10 +9,10 @@
 header{
     margin: 0;
     color: white;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
     /* background-color: var(--main-blue); */
     background: rgb(0,12,255);
-    background: radial-gradient(circle, rgba(0,12,255,1) 25%, rgba(78,173,251,1) 52%, rgba(0,11,255,1) 90%);
+    background: radial-gradient(circle, rgb(17, 27, 170) 25%, rgba(78,173,251,1) 52%, rgb(6, 14, 155) 90%);
 }
 
 .btn{
