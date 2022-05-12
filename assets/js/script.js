@@ -2,6 +2,7 @@ var userFormEl = document.querySelector("#user-form");
 var cityInputEl = document.querySelector("#city-name");
 var currentSearchEl = document.querySelector("#current-search");
 var forecastContainerEl = document.querySelector("#forecast-container");
+var searchHistoryContainerEl = document.querySelector("#search-history-container");
 
 var dateString = new Date().toDateString();
 const APIkey = "2dcaaab2dfc382fe583d27ce65d5cc26"
@@ -23,6 +24,12 @@ function searchBtnHandler(event){
     else{
         alert("Please enter the name of a city");
     }
+}
+function historyButtonHandler(event){
+    var city = event.target.textContent;
+    var currentSearchURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + APIkey + "&units=imperial";
+    callCurrentAPI(currentSearchURL);
+
 }
 function callCurrentAPI(currentSearchURL){
     fetch(currentSearchURL).then(function(response){
@@ -96,6 +103,14 @@ function clearCurrentDisplay(){
         forecastContainerEl.removeChild(forecastChild);
     }
 }
+function clearHistoryDisplay(){
+    if(searchHistoryContainerEl){
+        while(searchHistoryContainerEl.hasChildNodes()){
+            var childEl = searchHistoryContainerEl.firstChild;
+            searchHistoryContainerEl.removeChild(childEl);     
+        }
+    }
+}
 
 function displayCurrentWeather(data, UVI){
     clearCurrentDisplay();
@@ -151,13 +166,46 @@ function displayCurrentWeather(data, UVI){
     
 
     currentSearchEl.appendChild(currentContainerEl);
+    createHistoryButtons();
+    addToHistory(data.name);
 }
 function displayFiveDayForecast(){
 
 }
 
 function addToHistory(city){
+    var history = JSON.parse(localStorage.getItem("searchHistory"));
+    if(history){
+        //remove duplicates
+        for(var i =0; i < history.length; i++){
+            if(history[i] === city){
+                history.splice(i,1);
+            }
+        }
+        history.unshift(city);
+    }
+    else{
+        history = [];
+        history.unshift(city);
+    }
 
+    localStorage.setItem("searchHistory", JSON.stringify(history));
+
+}
+function createHistoryButtons(){
+    clearHistoryDisplay();
+    var history = JSON.parse(localStorage.getItem("searchHistory"));
+
+    if(history){
+
+        for(var i = 0; i < history.length; i++){
+            let cityHistoryEl = document.createElement("button");
+            cityHistoryEl.textContent = history[i];
+            cityHistoryEl.classList = "p-1 m-1 col-12 w-100 text-light bg-dark rounded"
+            searchHistoryContainerEl.appendChild(cityHistoryEl)
+        }
+    }
 }
 
 userFormEl.addEventListener("submit", searchBtnHandler);
+searchHistoryContainerEl.addEventListener("click", historyButtonHandler);
