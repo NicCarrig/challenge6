@@ -1,6 +1,7 @@
 var userFormEl = document.querySelector("#user-form");
 var cityInputEl = document.querySelector("#city-name");
 var currentSearchEl = document.querySelector("#current-search");
+var forecastContainerEl = document.querySelector("#forecast-container");
 
 var dateString = new Date().toDateString();
 const APIkey = "2dcaaab2dfc382fe583d27ce65d5cc26"
@@ -50,6 +51,7 @@ function callUVIndexAPI(mainData, lat, lon){
             cityInputEl.value = "";
             response.json().then(function(data){
                 // console.log("UV index");
+                // console.log(data);
                 // console.log(data.daily[0].uvi);
                 var UVI = data.daily[0].uvi;
                 displayCurrentWeather(mainData, UVI);
@@ -81,15 +83,33 @@ function callUVIndexAPI(mainData, lat, lon){
 //         console.log(error);
 //     });
 // }
+function clearCurrentDisplay(){
 
+    if(currentSearchEl){
+        while(currentSearchEl.hasChildNodes()){
+            var childEl = currentSearchEl.firstChild;
+            currentSearchEl.removeChild(childEl);     
+        }
+    }
+    while(forecastContainerEl.hasChildNodes()){
+        var forecastChild = forecastContainerEl.firstChild;
+        forecastContainerEl.removeChild(forecastChild);
+    }
+}
 
 function displayCurrentWeather(data, UVI){
+    clearCurrentDisplay();
     var currentContainerEl = document.createElement("div");
     currentContainerEl.classList = "border border-dark p-1 row";
 
     var cityNameEl = document.createElement("h3");
     cityNameEl.textContent = data.name + " (" + dateString + ")";
-    cityNameEl.classList = "col-12"
+    cityNameEl.classList = "col-12 font-weight-bold"
+    var weatherIcon = document.createElement("img");
+    weatherIcon.setAttribute("src", "https://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png")
+    weatherIcon.setAttribute("alt", data.weather.description);
+    weatherIcon.setAttribute("style", "width: 50px; height: 50px;");
+    cityNameEl.appendChild(weatherIcon);
     currentContainerEl.appendChild(cityNameEl);
 
     var tempEl = document.createElement("span");
@@ -108,14 +128,35 @@ function displayCurrentWeather(data, UVI){
     currentContainerEl.appendChild(humidityEl);
 
     var UVIndexEl = document.createElement("span");
-    UVIndexEl.textContent = "UV Index: " + UVI ;
+    UVIndexEl.textContent = "UV Index: ";
     UVIndexEl.classList = "col-12"
+    var UVIndicatorEl = document.createElement("span");
+    UVIndicatorEl.textContent = UVI;
+    UVIndicatorEl.classList = "rounded px-3";
+    // console.log(parseInt(UVI));
+    if(parseFloat(UVI) >= 8){
+        UVIndicatorEl.classList.add("bg-danger");
+        UVIndicatorEl.classList.add("text-light");
+    }
+    else if (parseFloat(UVI) >= 4){
+        UVIndicatorEl.classList.add("bg-warning");
+        UVIndicatorEl.classList.add("text-dark");
+    }
+    else{
+        UVIndicatorEl.classList.add("bg-success");
+        UVIndicatorEl.classList.add("text-light");
+    }
+    UVIndexEl.appendChild(UVIndicatorEl);
     currentContainerEl.appendChild(UVIndexEl);
     
 
     currentSearchEl.appendChild(currentContainerEl);
 }
 function displayFiveDayForecast(){
+
+}
+
+function addToHistory(city){
 
 }
 
