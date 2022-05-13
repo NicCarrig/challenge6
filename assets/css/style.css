@@ -27,3 +27,13 @@ header{
     text-decoration: none;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
 }
+
+#forecast-container{
+    display: flex;
+    justify-content: space-between;
+}
+#forecast-card{
+    background-color: rgb(36, 48, 73);
+    color: white;
+    width: 20%;
+}

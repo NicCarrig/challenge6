@@ -18,8 +18,7 @@ function searchBtnHandler(event){
 
     if(city){
         callCurrentAPI(currentSearchURL);
-        // callUVIndexAPI(UVIndexURL);
-    //     callForecastAPI(forecastURL);
+        callForecastAPI(forecastURL);
     }
     else{
         alert("Please enter the name of a city");
@@ -28,15 +27,20 @@ function searchBtnHandler(event){
 function historyButtonHandler(event){
     var city = event.target.textContent;
     var currentSearchURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + APIkey + "&units=imperial";
+    var forecastURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=" + APIkey + "&units=imperial";
     callCurrentAPI(currentSearchURL);
+    callForecastAPI(forecastURL);
 
 }
+
+//-------------API FUNCTIONS----------------------------
 function callCurrentAPI(currentSearchURL){
     fetch(currentSearchURL).then(function(response){
         if (response.ok){
             cityInputEl.value = "";
             response.json().then(function(data){
-                console.log(data);
+                // console.log("main data");
+                // console.log(data);
                 var lat = data.coord.lat;
                 var lon = data.coord.lon;
                 callUVIndexAPI(data, lat, lon);
@@ -72,35 +76,40 @@ function callUVIndexAPI(mainData, lat, lon){
         console.log(error);
     });
 }
-// function callForecastAPI(forecastURL){
-//     fetch(forecastURL).then(function(response){
-//         if (response.ok){
-//             cityInputEl.value = "";
-//             response.json().then(function(data){
-//                 console.log("forecast data");
-//                 console.log(data);
- 
-//             });
-//         }
-//         else{
-//             alert("Error: Unable to find data for that city");
-//         }
-//     })
-//     .catch(function(error){
-//         console.log(error);
-//     });
-// }
-function clearCurrentDisplay(){
+function callForecastAPI(forecastURL){
+    fetch(forecastURL).then(function(response){
+        if (response.ok){
+            cityInputEl.value = "";
+            response.json().then(function(data){
+                // console.log("forecast data");
+                // console.log(data);
+                displayFiveDayForecast(data);
+            });
+        }
+        else{
+            alert("Error: Unable to find data for that city");
+        }
+    })
+    .catch(function(error){
+        console.log(error);
+    });
+}
 
+//--------------DISPLAY FUNCTIONS-----------------
+function clearCurrentDisplay(){
     if(currentSearchEl){
         while(currentSearchEl.hasChildNodes()){
             var childEl = currentSearchEl.firstChild;
             currentSearchEl.removeChild(childEl);     
         }
     }
-    while(forecastContainerEl.hasChildNodes()){
-        var forecastChild = forecastContainerEl.firstChild;
-        forecastContainerEl.removeChild(forecastChild);
+}
+function clearForecastDisplay(){
+    if(forecastContainerEl){
+        while(forecastContainerEl.hasChildNodes()){
+            var forecastChild = forecastContainerEl.firstChild;
+            forecastContainerEl.removeChild(forecastChild);
+        }
     }
 }
 function clearHistoryDisplay(){
@@ -123,7 +132,7 @@ function displayCurrentWeather(data, UVI){
     var weatherIcon = document.createElement("img");
     weatherIcon.setAttribute("src", "https://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png")
     weatherIcon.setAttribute("alt", data.weather.description);
-    weatherIcon.setAttribute("style", "width: 50px; height: 50px;");
+    weatherIcon.setAttribute("style", "width: 60px; height: 60px;");
     cityNameEl.appendChild(weatherIcon);
     currentContainerEl.appendChild(cityNameEl);
 
@@ -169,10 +178,61 @@ function displayCurrentWeather(data, UVI){
     createHistoryButtons();
     addToHistory(data.name);
 }
-function displayFiveDayForecast(){
+function displayFiveDayForecast(data){
+    clearForecastDisplay();
+    // console.log(data);
+
+    for(var i = 0; i < 40; i+=8){
+        let dateCard = document.createElement("div");
+        dateCard.classList = "rounded row";
+        dateCard.setAttribute("id", "forecast-card");
+
+        let date = formatForecastDate(data.list[i].dt_txt);
+        // console.log(date);
+        let dateEl = document.createElement("h4");
+        dateEl.textContent = date;
+        dateEl.classList = "font-weight-bold col-12";
+        dateCard.appendChild(dateEl);
+
+        let iconEl = document.createElement("img");
+        // console.log(data.list[i].weather[0].icon);
+        iconEl.setAttribute("src", "https://openweathermap.org/img/wn/" + data.list[i].weather[0].icon + "@2x.png");
+        iconEl.setAttribute("alt", data.list[i].weather[0].description);
+        iconEl.setAttribute("style", "width: 60px; height: 60px;");
+        // iconEl.classList = "col-12";
+        dateCard.appendChild(iconEl);
+
+        let tempEl = document.createElement("span");
+        // console.log(data.list[i].main.temp);
+        tempEl.textContent = "Temp: " + data.list[i].main.temp + "°F";
+        tempEl.classList = "col-12";
+        dateCard.appendChild(tempEl);
+
+        let windEl = document.createElement("span");
+        // console.log(data.list[i].wind.speed);
+        windEl.textContent = "Wind: " + data.list[i].wind.speed + " MPH";
+        windEl.classList = "col-12";
+        dateCard.appendChild(windEl);
+
+        let humidityEl = document.createElement("span");
+        // console.log(data.list[i].main.humidity);
+        humidityEl.textContent = "Humidity: " + data.list[i].main.humidity + "%";
+        humidityEl.classList = "col-12";
+        dateCard.appendChild(humidityEl);
+
+        forecastContainerEl.appendChild(dateCard);
+    }
 
 }
+function formatForecastDate(dateString){
+    let dateArr = dateString.split("-");   //["yyyy", "mm", "dd 00:00:00"]
+    let dayString = dateArr[2].split(" ");  //["dd", "00:00:00"]
+    let formattedDate = dateArr[1] + "/" + dayString[0] + "/" + dateArr[0];
+    return formattedDate;
+}
 
+
+//---------HISTORY SEARCH FUNCTIONS-----------------
 function addToHistory(city){
     var history = JSON.parse(localStorage.getItem("searchHistory"));
     if(history){
@@ -207,5 +267,8 @@ function createHistoryButtons(){
     }
 }
 
+
+//-------EVENT LISTENERS-------------
+document.onload = createHistoryButtons();
 userFormEl.addEventListener("submit", searchBtnHandler);
 searchHistoryContainerEl.addEventListener("click", historyButtonHandler);
